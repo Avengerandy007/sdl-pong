@@ -10,9 +10,9 @@ class Pallet{
 
 	public Pallet(bool isPlayer){
 		if (isPlayer){
-			rect.x = 150;
+			rect.x = 50;
 		}else{
-			rect.x = 450;
+			rect.x = 550;
 		}
 		SetRectY();
 		SDL_RenderFillRect(Program.GameWindow.renderer, ref rect);

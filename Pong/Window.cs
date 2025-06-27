@@ -44,6 +44,15 @@ class Window{
 				case SDL_EventType.SDL_QUIT:
 					running = false;
 				break;
+
+				case SDL_EventType.SDL_KEYDOWN:
+					if(e.key.keysym.sym == SDL_Keycode.SDLK_UP){
+						Player.GoUp();
+					}
+					else if(e.key.keysym.sym == SDL_Keycode.SDLK_DOWN){
+						Player.GoDown();
+					}
+				break;
 			}
 		}
 	}
