@@ -28,6 +28,7 @@ class Window{
 		while (running){
 			Render();
 			PollEvents();
+			Program.ball.Moving();
 		}
 		Deconstruct();
 	}
