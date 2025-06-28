@@ -19,6 +19,7 @@ class Pallet{
 		SDL_RenderFillRect(Program.GameWindow.renderer, ref rect);
 	}
 
+
 	void SetRectY(){
 		rect.y = (480 - rect.h) / 2;
 	}
@@ -41,9 +42,11 @@ class Ball{
 	int ballYend;
 
 	System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
+	System.Diagnostics.Stopwatch reflectStop = new System.Diagnostics.Stopwatch();
 
 	public Ball(){
 		direction = new Vector2(-1, 0);
+		direction = Vector2.Normalize(direction);
 		position = new Vector2(rect.x, rect.y);
 
 		ballXbegin = rect.x;
@@ -53,20 +56,35 @@ class Ball{
 		ballYend = rect.y + rect.h;
 
 		stopwatch.Start();
+		reflectStop.Start();
 
 	}
 
 
 	public void Moving(){
 
-		position.X = rect.x;
-		position.Y = rect.y;
+		SetPosition();
 
 		if (!Colliding() && (float)stopwatch.Elapsed.TotalMilliseconds > 10){
 			position += direction * speed;
-			SetPosition();
 			stopwatch.Restart();
+		}else if (Colliding()){
+			if ((float)reflectStop.Elapsed.TotalMilliseconds > 100){
+				reflectStop.Restart();
+				Reflect();
+			}
+			position += direction * speed;
 		}
+	}
+
+	void Reflect(){
+		Random r = new Random();
+		int factor = r.Next(0, 2);
+		if (position.Y == 479 || position.Y == 1){
+			direction = new Vector2(-direction.X, direction.Y);
+		}else direction = new Vector2(-direction.X, -direction.Y + factor);
+
+		direction = Vector2.Normalize(direction);
 	}
 
 	void SetPosition(){
@@ -82,6 +100,20 @@ class Ball{
 	}
 
 	bool Colliding(){
+		if (ballXbegin == 90){
+			if (ballYbegin > Program.player.rect.y && ballYend < (Program.player.rect.y + Program.player.rect.h)){
+				return true;
+			}
+			return false;
+		}else if (ballXend == 550){
+			if(ballYbegin > Program.enemy.rect.y && ballYend < (Program.enemy.rect.y + Program.enemy.rect.h)){
+				return true;
+			}
+			return false;
+		}else if (ballYbegin == 1){
+			return true;
+		}else if (ballYend == 479) return true;
+
 		return false;
 	}
 

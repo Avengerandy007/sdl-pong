@@ -52,6 +52,12 @@ class Window{
 					}
 					else if(e.key.keysym.sym == SDL_Keycode.SDLK_DOWN){
 						Player.GoDown();
+					}else if (e.key.keysym.sym == SDL_Keycode.SDLK_r){
+						running = false;
+						Deconstruct();
+						Program.GameWindow = new Window();
+						Program.Main();
+						return;
 					}
 				break;
 			}

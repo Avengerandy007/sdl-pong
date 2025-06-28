@@ -7,10 +7,11 @@
 
 	public static Ball ball = new Ball();
 
-	static void Main(){
+	public static void Main(){
 		Console.WriteLine("Hey");
 		GameWindow.Setup();
 		GameWindow.MainLoop();
+		return;
 	}
 }
 
