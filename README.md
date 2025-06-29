@@ -10,4 +10,4 @@ If you wish "peruse" the code I warn you that it is not documented at all and yo
 #### Playing
 You can press the Up or Down arrow keys to control your pallet and 'r' to reset the positions of all the objects.
 
-#### !!Note: It sadly only works on Windows because I am too lazy to make it search for fonts on all systems. The good part is that isn't hard to fix, you can just go to Objects.cs, in the ScoreDisplay class and change the font path to your desired one.
+#### !!Note: It sadly only works on Windows because I am too lazy to make it search for fonts on all systems. The good part is that it isn't hard to fix, you can just go to Objects.cs, in the ScoreDisplay class and change the font path to your desired one.
