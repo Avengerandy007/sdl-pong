@@ -1,4 +1,5 @@
 using static SDL2.SDL;
+using static SDL2.SDL_ttf;
 
 class Window{
 
@@ -29,6 +30,7 @@ class Window{
 			Render();
 			PollEvents();
 			Program.ball.Moving();
+			Enemy.TrackBall();
 		}
 		Deconstruct();
 	}
@@ -56,6 +58,7 @@ class Window{
 						running = false;
 						Deconstruct();
 						Program.GameWindow = new Window();
+						Program.ball = new Ball();
 						Program.Main();
 						return;
 					}

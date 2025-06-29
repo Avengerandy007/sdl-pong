@@ -19,8 +19,7 @@ class Pallet{
 		SDL_RenderFillRect(Program.GameWindow.renderer, ref rect);
 	}
 
-
-	void SetRectY(){
+	public void SetRectY(){
 		rect.y = (480 - rect.h) / 2;
 	}
 
@@ -31,7 +30,9 @@ class Ball{
 
 	int speed = 1;
 
-	Vector2 direction;
+	public Vector2 originalPos = new Vector2(((640 - 30) / 2), ((480 - 30) / 2));
+
+	public Vector2 direction;
 	Vector2 position;
 	
 
@@ -63,9 +64,11 @@ class Ball{
 
 	public void Moving(){
 
+		IfGoal();
 		SetPosition();
 
-		if (!Colliding() && (float)stopwatch.Elapsed.TotalMilliseconds > 10){
+
+		if (!Colliding() && (float)stopwatch.Elapsed.TotalMilliseconds > 5){
 			position += direction * speed;
 			stopwatch.Restart();
 		}else if (Colliding()){
@@ -79,10 +82,11 @@ class Ball{
 
 	void Reflect(){
 		Random r = new Random();
-		int factor = r.Next(0, 2);
-		if (position.Y == 479 || position.Y == 1){
-			direction = new Vector2(-direction.X, direction.Y);
-		}else direction = new Vector2(-direction.X, -direction.Y + factor);
+		int factor = r.Next(1, 2);
+		Random plusMinus = new Random();
+		if (position.Y >= 449 || position.Y <= 31){
+			direction = new Vector2(direction.X, -direction.Y);
+		}else direction = plusMinus.Next(0, 1) == 0 ? new Vector2(-direction.X, direction.Y + factor) : new Vector2(-direction.X, direction.Y - factor);
 
 		direction = Vector2.Normalize(direction);
 	}
@@ -101,12 +105,12 @@ class Ball{
 
 	bool Colliding(){
 		if (ballXbegin == 90){
-			if (ballYbegin > Program.player.rect.y && ballYend < (Program.player.rect.y + Program.player.rect.h)){
+			if (SemiCollision(Program.player.rect)){
 				return true;
 			}
 			return false;
 		}else if (ballXend == 550){
-			if(ballYbegin > Program.enemy.rect.y && ballYend < (Program.enemy.rect.y + Program.enemy.rect.h)){
+			if(SemiCollision(Program.enemy.rect)){
 				return true;
 			}
 			return false;
@@ -115,6 +119,59 @@ class Ball{
 		}else if (ballYend == 479) return true;
 
 		return false;
+	}
+
+	bool SemiCollision(SDL_Rect rect){
+		if (ballYbegin < rect.y && ballYbegin > rect.y + rect.h) return true;
+		if (ballYend > rect.y && ballYend < rect.y + rect.h) return true;
+		return false;
+	}
+
+	void IfGoal(){
+		if (rect.x <= 1){
+			direction = new Vector2(1, 0);
+			Program.enemyScore++;
+			position = originalPos;
+			Program.player.SetRectY();
+			Program.enemy.SetRectY();
+		}else if (rect.x >= 600){
+			direction = new Vector2(-1, 0);
+			Program.playerScore++;
+			position = originalPos;
+			Program.player.SetRectY();
+			Program.enemy.SetRectY();
+		}
+	}
+
+
+}
+
+class ScoreDisplay{
+
+	public static IntPtr font = TTF_OpenFont("C:/Windows/Fonts/comic.ttf", 40);
+	public IntPtr surface;
+	public static SDL_Color white = new SDL_Color{r = 255, g = 255, b = 255, a = 255};
+	public IntPtr texture;
+	public SDL_Rect rect = new SDL_Rect{y = 350, w = 100, h = 50};
+
+	public static void MainEntry(){
+		TTF_Init();
+	}
+
+	public static void MainExit(){
+		TTF_CloseFont(font);
+		TTF_Quit();
+	}
+
+	public void Setup(int score, bool isPlayer){
+		if (isPlayer){
+			rect.x = ((640 - 30) / 2) - 150;
+		}else rect.x = ((640 - 30) / 2) + 50;
+
+	}
+
+	public void Exit(){
+		SDL_DestroyTexture(texture);
 	}
 
 
@@ -126,6 +183,7 @@ static class ObjectDisplayLogic{
 
 		rPallet(ref Program.player.rect, ref Program.enemy.rect);
 		rBall(ref Program.ball.rect);
+		rText();
 
 		SDL_SetRenderDrawColor(Program.GameWindow.renderer, 0, 0, 0, 255);
 	}
@@ -138,6 +196,22 @@ static class ObjectDisplayLogic{
 		SDL_RenderFillRect(Program.GameWindow.renderer, ref enemy);
 		SDL_RenderDrawRect(Program.GameWindow.renderer, ref enemy);
 
+	}
+
+	static void rText(){
+		Program.playerScoredisplay.surface = TTF_RenderText_Solid(ScoreDisplay.font, $"Score: {Program.playerScore}", ScoreDisplay.white);
+		SDL_DestroyTexture(Program.playerScoredisplay.texture);
+		Program.playerScoredisplay.texture = SDL_CreateTextureFromSurface(Program.GameWindow.renderer, Program.playerScoredisplay.surface);
+		SDL_FreeSurface(Program.playerScoredisplay.surface);
+
+		Program.enemyScoredisplay.surface = TTF_RenderText_Solid(ScoreDisplay.font, $"Score: {Program.enemyScore}", ScoreDisplay.white);
+		SDL_DestroyTexture(Program.enemyScoredisplay.texture);
+		Program.enemyScoredisplay.texture = SDL_CreateTextureFromSurface(Program.GameWindow.renderer, Program.enemyScoredisplay.surface);
+		SDL_FreeSurface(Program.enemyScoredisplay.surface);
+
+
+		SDL_RenderCopy(Program.GameWindow.renderer, Program.playerScoredisplay.texture, IntPtr.Zero, ref Program.playerScoredisplay.rect);
+		SDL_RenderCopy(Program.GameWindow.renderer, Program.enemyScoredisplay.texture, IntPtr.Zero, ref Program.enemyScoredisplay.rect);
 	}
 
 	static void rBall(ref SDL_Rect ball){
